@@ -62,6 +62,48 @@ Three results that hold across every workload and load profile:
   checkout against 0.83 ms.
   Choosing GORM costs more than choosing TypeScript over Go.
 
+## Why the data layer is the decision that matters
+
+The framework you pick is not measurable here. Not one framework-against-framework
+pair inside a language separates at the 5% level — Rust's Axum, hyper and Actix
+span 1.44 ranks, Go's Fiber, net/http and Gin span 1.89, and the
+Nemenyi critical difference is 4.52. The data layer separates loudly.
+
+Hold the router constant and change only how it reaches Postgres:
+
+| | `go-gin` (pgx, hand-written SQL) | `go-gin-gorm` (GORM) |
+|---|--:|--:|
+| throughput, quote | 3,495 req/s | 2,271 req/s |
+| CPU per request, quote | 0.457 ms | 1.125 ms |
+| CPU per request, checkout | 0.828 ms | 2.866 ms |
+| p99, checkout | 62 ms | 389 ms |
+| SQL statements per quote | 6 | 7 |
+| SQL statements per checkout | 15 | 16 |
+
+Two things are going on, and they are worth separating.
+
+**The ORM issues more statements than it was asked to.** Nine of the ten services
+send 6 statements for a quote and 15 for a checkout, measured by
+`bench/count_statements.sh`. GORM sends one more of each: `Preload` fetches the
+customer tier with a second `SELECT` instead of the join the specification
+prescribes. The output is identical — it passes conformance — but the work
+behind it is not.
+
+**Most of the cost is not the extra statement.** GORM spends
+0.668 ms more CPU per quote than the identical router over pgx. If the
+extra statement cost what `go-gin` pays per statement, it would account for about
+11% of that. The rest is per-statement overhead: reflection-based
+row mapping, `SELECT *` where five columns were needed, and statement building on
+every call. It works out to roughly **0.10–0.13 ms of extra CPU per
+statement**, and it scales with how many statements you issue — which is why the
+gap widens from 1.54x on quote to 2.65x on checkout.
+
+Compare that against the framework. The three Go stacks over pgx differ by
+0.048 ms of CPU per request across the whole spread. The ORM's overhead is
+**14x** that spread. Per request this workload runs one HTTP parse and
+one JSON response against 6 to 15 database round trips, so the layer
+doing the repeated work is the layer that decides your number.
+
 ## The ten stacks
 
 | id | Language | Framework | Driver |
@@ -117,7 +159,15 @@ python3 bench/verify.py
 
 Replays a fixed corpus against all ten services and diffs the canonical JSON.
 A stack that computed a different invoice, skipped a query, or rounded
-differently fails here before any stopwatch starts. Two normalisations are
+differently fails here before any stopwatch starts.
+
+Conformance checks **output**, not query shape. `bench/count_statements.sh`
+checks the second half: nine of the ten services issue the same 6 statements per
+quote and 15 per checkout, and `go-gin-gorm` issues one more of each because
+GORM's `Preload` resolves the customer tier with a second `SELECT` rather than
+the prescribed join. That divergence is left in and reported rather than
+patched out — an ORM quietly changing your query plan is part of what an ORM
+costs. Two normalisations are
 applied and both are documented in the script: `orderId`, which is a sequence
 and differs per run, and ISO timestamp spelling, since `:00Z` and `:00.000Z` are
 the same instant and the spec does not dictate fractional-second formatting.

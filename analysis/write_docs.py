@@ -7,6 +7,7 @@ documents cannot drift from the measurements behind them.
 import json
 
 S = json.load(open("analysis/stats.json"))
+STMT = json.load(open("analysis/statements.json"))
 STACKS = {s["id"]: s for s in json.load(open("bench/stacks.json"))}
 SIDS = list(STACKS)
 SCEN = ["quote", "checkout", "summary"]
@@ -45,6 +46,27 @@ def full_table(sc, conf):
             f"| {n(c('rss')['median'],1)} MB | {c('rps')['cv']*100:.1f}% |")
     return "\n".join(out)
 
+
+
+_f99 = S["friedman"]["p99"]["avgRank"]
+_cd = S["friedman"]["p99"]["criticalDifference"]
+_rk = lambda ids: max(_f99[i] for i in ids) - min(_f99[i] for i in ids)
+rust_span = _rk(["rust-axum", "rust-hyper", "rust-actix"])
+go_span = _rk(["go-nethttp", "go-fiber", "go-gin"])
+gin_cpu, gorm_cpu = C("go-gin","quote","closed@64","cpu")["median"], C("go-gin-gorm","quote","closed@64","cpu")["median"]
+gin_cpu_co, gorm_cpu_co = C("go-gin","checkout","closed@64","cpu")["median"], C("go-gin-gorm","checkout","closed@64","cpu")["median"]
+gin_q, gorm_q = STMT["go-gin"]["quote"], STMT["go-gin-gorm"]["quote"]
+gin_c, gorm_c = STMT["go-gin"]["checkout"], STMT["go-gin-gorm"]["checkout"]
+orm_delta = gorm_cpu - gin_cpu
+_per_stmt_gin = gin_cpu / gin_q
+extra_share = _per_stmt_gin / orm_delta * 100
+tax_lo = (orm_delta - _per_stmt_gin) / gin_q
+tax_hi = (gorm_cpu_co - gin_cpu_co - gin_cpu_co / gin_c) / gin_c
+if tax_lo > tax_hi: tax_lo, tax_hi = tax_hi, tax_lo
+_gocpu = [C(i,"quote","closed@64","cpu")["median"] for i in ("go-nethttp","go-fiber","go-gin")]
+fw_spread = max(_gocpu) - min(_gocpu)
+tax_vs_fw = orm_delta / fw_spread
+n_q, n_c = STMT["rust-axum"]["quote"], STMT["rust-axum"]["checkout"]
 
 fri99, fricpu = S["friedman"]["p99"], S["friedman"]["cpu"]
 bun_hono = con[("ts-bun-only", "ts-bun-hono")]
@@ -121,6 +143,48 @@ Three results that hold across every workload and load profile:
   checkout against {C('go-gin','checkout','closed@64','cpu')['median']:.2f} ms.
   Choosing GORM costs more than choosing TypeScript over Go.
 
+## Why the data layer is the decision that matters
+
+The framework you pick is not measurable here. Not one framework-against-framework
+pair inside a language separates at the 5% level — Rust's Axum, hyper and Actix
+span {rust_span:.2f} ranks, Go's Fiber, net/http and Gin span {go_span:.2f}, and the
+Nemenyi critical difference is {_cd:.2f}. The data layer separates loudly.
+
+Hold the router constant and change only how it reaches Postgres:
+
+| | `go-gin` (pgx, hand-written SQL) | `go-gin-gorm` (GORM) |
+|---|--:|--:|
+| throughput, quote | {C("go-gin","quote","closed@64","rps")["median"]:,.0f} req/s | {C("go-gin-gorm","quote","closed@64","rps")["median"]:,.0f} req/s |
+| CPU per request, quote | {gin_cpu:.3f} ms | {gorm_cpu:.3f} ms |
+| CPU per request, checkout | {gin_cpu_co:.3f} ms | {gorm_cpu_co:.3f} ms |
+| p99, checkout | {C("go-gin","checkout","closed@64","p99")["median"]:.0f} ms | {C("go-gin-gorm","checkout","closed@64","p99")["median"]:.0f} ms |
+| SQL statements per quote | {gin_q:.0f} | {gorm_q:.0f} |
+| SQL statements per checkout | {gin_c:.0f} | {gorm_c:.0f} |
+
+Two things are going on, and they are worth separating.
+
+**The ORM issues more statements than it was asked to.** Nine of the ten services
+send {n_q:.0f} statements for a quote and {n_c:.0f} for a checkout, measured by
+`bench/count_statements.sh`. GORM sends one more of each: `Preload` fetches the
+customer tier with a second `SELECT` instead of the join the specification
+prescribes. The output is identical — it passes conformance — but the work
+behind it is not.
+
+**Most of the cost is not the extra statement.** GORM spends
+{orm_delta:.3f} ms more CPU per quote than the identical router over pgx. If the
+extra statement cost what `go-gin` pays per statement, it would account for about
+{extra_share:.0f}% of that. The rest is per-statement overhead: reflection-based
+row mapping, `SELECT *` where five columns were needed, and statement building on
+every call. It works out to roughly **{tax_lo:.2f}–{tax_hi:.2f} ms of extra CPU per
+statement**, and it scales with how many statements you issue — which is why the
+gap widens from {gorm["perScenario"]["quote"]["ratio"]:.2f}x on quote to {gorm["perScenario"]["checkout"]["ratio"]:.2f}x on checkout.
+
+Compare that against the framework. The three Go stacks over pgx differ by
+{fw_spread:.3f} ms of CPU per request across the whole spread. The ORM's overhead is
+**{tax_vs_fw:.0f}x** that spread. Per request this workload runs one HTTP parse and
+one JSON response against {n_q:.0f} to {n_c:.0f} database round trips, so the layer
+doing the repeated work is the layer that decides your number.
+
 ## The ten stacks
 
 | id | Language | Framework | Driver |
@@ -169,7 +233,15 @@ python3 bench/verify.py
 
 Replays a fixed corpus against all ten services and diffs the canonical JSON.
 A stack that computed a different invoice, skipped a query, or rounded
-differently fails here before any stopwatch starts. Two normalisations are
+differently fails here before any stopwatch starts.
+
+Conformance checks **output**, not query shape. `bench/count_statements.sh`
+checks the second half: nine of the ten services issue the same 6 statements per
+quote and 15 per checkout, and `go-gin-gorm` issues one more of each because
+GORM's `Preload` resolves the customer tier with a second `SELECT` rather than
+the prescribed join. That divergence is left in and reported rather than
+patched out — an ORM quietly changing your query plan is part of what an ORM
+costs. Two normalisations are
 applied and both are documented in the script: `orderId`, which is a sequence
 and differs per run, and ISO timestamp spelling, since `:00Z` and `:00.000Z` are
 the same instant and the spec does not dictate fractional-second formatting.

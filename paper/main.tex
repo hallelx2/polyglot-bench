@@ -133,6 +133,16 @@ database sequence and differs per run, and ISO timestamp spelling, since
 specification does not dictate fractional-second formatting. All ten
 implementations pass.
 
+Conformance establishes that the services return the same bytes, not that they
+ask the database the same questions. A second check counts statements reaching
+the server under \texttt{log\_statement}: nine services issue 6 statements per
+pricing call and 15 per checkout, while \texttt{go-gin-gorm} issues one more of
+each, because GORM's \texttt{Preload} resolves the customer tier with a second
+\texttt{SELECT} rather than the join the specification prescribes. We report the
+divergence rather than remove it: an ORM silently altering the query plan is
+part of what the ORM costs, and it accounts for roughly a ninth of its measured
+overhead.
+
 \section{Method}
 
 \textbf{Hardware and isolation.} Intel Core i7-8665U (4 cores, 8 threads),

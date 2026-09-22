@@ -1,0 +1,12 @@
+{
+  "ts-bun-only": {"quote": 6.00,"checkout": 15.00},
+  "ts-bun-hono": {"quote": 6.00,"checkout": 15.00},
+  "ts-node-fastify": {"quote": 6.00,"checkout": 15.00},
+  "go-nethttp": {"quote": 6.00,"checkout": 15.00},
+  "go-fiber": {"quote": 6.00,"checkout": 15.00},
+  "go-gin": {"quote": 6.00,"checkout": 15.00},
+  "go-gin-gorm": {"quote": 7.00,"checkout": 16.00},
+  "rust-hyper": {"quote": 6.00,"checkout": 15.00},
+  "rust-axum": {"quote": 6.00,"checkout": 15.00},
+  "rust-actix": {"quote": 6.00,"checkout": 15.00}
+}
