@@ -51,9 +51,21 @@ body{width:1920px;height:1080px;background:var(--paper);overflow:hidden;
 
 <script>
 const D = window.__DATA__, S = D.stacks;
-const LANG = {Rust:"#27272a", Go:"#71717a", TypeScript:"#a1a1aa"};
-const HERO = "ts-bun-only";
-const col = s => s.id === HERO ? "#ff5a00" : LANG[s.lang];
+/* One hue per framework, assigned to the entity in a fixed order — never by
+   rank, so a re-sort never repaints a series. Validated for a light surface
+   with the dataviz palette checker: lightness band and chroma floor pass, the
+   normal-vision floor passes at 19.6, and the two warnings it does raise
+   (green/red under protanopia, three hues under 3:1 contrast) are the ones the
+   rule permits when every series also carries a direct text label, which these
+   do at the right edge of each chart. */
+const COLORS = {
+  "ts-bun-only":"#2a78d6", "ts-bun-hono":"#b45309", "ts-node-fastify":"#1baf7a",
+  "go-nethttp":"#4a3aa7",  "go-fiber":"#eb6834",    "go-gin":"#0e9bb5",
+  "go-gin-gorm":"#e34948", "rust-hyper":"#008300",  "rust-axum":"#e87ba4",
+  "rust-actix":"#eda100",
+};
+const HERO = null;
+const col = s => COLORS[s.id];
 const SHORT = {"rust-hyper":"Rust hyper","rust-axum":"Rust Axum","rust-actix":"Rust Actix",
   "go-nethttp":"Go net/http","go-fiber":"Go Fiber","go-gin":"Go Gin","go-gin-gorm":"Go Gin+GORM",
   "ts-bun-only":"TS Bun only","ts-bun-hono":"TS Hono","ts-node-fastify":"TS Fastify"};
@@ -90,7 +102,7 @@ function niceMax(v){
 
 function lineChart(cv, key, t, {unit="", dec=0, scale=1}={}){
   const {ctx,w,h} = setup(cv);
-  const L=62, R=78, T=14, B=26;
+  const L=62, R=152, T=14, B=26;
   const top = niceMax(Math.max(...S.flatMap(s=>s.series.map(b=>b[key]*scale)))*1.06);
   const X = u => L + u/T_END*(w-L-R);
   const Y = v => h-B - v/top*(h-B-T);
@@ -115,7 +127,7 @@ function lineChart(cv, key, t, {unit="", dec=0, scale=1}={}){
   const labels=[];
   for(const s of S){
     const c = col(s), hero = s.id===HERO;
-    ctx.strokeStyle=c; ctx.lineWidth = hero?3:1.8; ctx.globalAlpha = hero?1:.9;
+    ctx.strokeStyle=c; ctx.lineWidth = 2.2; ctx.globalAlpha = 1;
     ctx.beginPath();
     for(let u=0; u<=t+1e-9; u+=0.05){
       const uu = Math.min(u,t), v = at(s,key,uu)*scale;
@@ -124,21 +136,21 @@ function lineChart(cv, key, t, {unit="", dec=0, scale=1}={}){
     ctx.stroke();
     // head dot + live value
     const v = at(s,key,t)*scale;
-    ctx.fillStyle=c; ctx.beginPath(); ctx.arc(X(t),Y(v), hero?4.5:3.2, 0, 6.2832); ctx.fill();
+    ctx.fillStyle=c; ctx.beginPath(); ctx.arc(X(t),Y(v), 4, 0, 6.2832); ctx.fill();
     ctx.globalAlpha=1;
-    labels.push({y:Y(v), text:fmt(v,dec)+unit, c, hero});
+    labels.push({y:Y(v), text:SHORT[s.id]+"  "+fmt(v,dec)+unit, c, hero});
   }
   // keep the right-hand readouts from overprinting each other
   labels.sort((a,b)=>a.y-b.y);
   for(let i=1;i<labels.length;i++)
-    if(labels[i].y-labels[i-1].y < 15) labels[i].y = labels[i-1].y+15;
+    if(labels[i].y-labels[i-1].y < 16) labels[i].y = labels[i-1].y+16;
   const over = labels.length ? labels.at(-1).y-(h-B) : 0;
   if(over>0){ for(const l of labels) l.y-=over;
     for(let i=labels.length-2;i>=0;i--)
-      if(labels[i+1].y-labels[i].y < 15) labels[i].y = labels[i+1].y-15; }
+      if(labels[i+1].y-labels[i].y < 16) labels[i].y = labels[i+1].y-16; }
   ctx.textAlign="left"; ctx.textBaseline="middle";
   for(const l of labels){
-    ctx.fillStyle=l.c; ctx.font=(l.hero?"600 ":"")+"13px 'DM Sans'";
+    ctx.fillStyle=l.c; ctx.font="500 12.5px 'DM Sans'";
     ctx.fillText(l.text, w-R+8, l.y);
   }
 }
@@ -155,7 +167,7 @@ function barChart(cv, key, t, {dec=3}={}){
   rows.forEach((s,i)=>{
     const y = T + i*gap + gap/2, bh = Math.min(17, gap-6);
     ctx.fillStyle="#3f3f46"; ctx.textAlign="right"; ctx.textBaseline="middle";
-    ctx.font = (s.id===HERO?"600 ":"")+"13px 'DM Sans'";
+    ctx.font = "13px 'DM Sans'";
     ctx.fillText(SHORT[s.id], L-10, y);
     ctx.fillStyle="#f4f4f5";
     ctx.beginPath(); ctx.roundRect(L, y-bh/2, w-L-R, bh, 5); ctx.fill();
