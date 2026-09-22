@@ -1,0 +1,282 @@
+<meta charset="utf-8">
+<title>Polyglot Bench — run replay</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+:root{
+  --obsidian:#09090b; --graphite:#18181b; --slate:#27272a; --iron:#3f3f46;
+  --steel:#52525b; --fog:#71717a; --ash:#a1a1aa; --mist:#d4d4d8;
+  --cloud:#ececee; --paper:#f4f4f5; --snow:#ffffff; --ember:#ff5a00;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1920px;height:1080px;background:var(--paper);overflow:hidden;
+  font-family:"DM Sans",system-ui,sans-serif;color:var(--graphite);
+  -webkit-font-smoothing:antialiased}
+#particles{position:absolute;inset:0;z-index:2;pointer-events:none}
+.act{position:absolute;inset:0;padding:64px 72px;z-index:1;opacity:0}
+.num{font-variant-numeric:tabular-nums}
+h1{font-size:78px;font-weight:600;letter-spacing:-.03em;color:var(--obsidian);
+  line-height:1.05}
+h2{font-size:44px;font-weight:600;letter-spacing:-.02em;color:var(--obsidian)}
+.sub{font-size:26px;color:var(--steel);margin-top:22px;line-height:1.45;max-width:46ch}
+.rule{width:84px;height:6px;background:var(--ember);border-radius:99px;margin:30px 0}
+.kicker{font-size:19px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fog);font-weight:500}
+.card{background:var(--snow);border:1px solid var(--cloud);border-radius:36px;padding:34px 38px}
+
+/* act 1 — anatomy */
+#a1 .chain{display:flex;align-items:center;gap:18px;margin-top:54px}
+#a1 .node{background:var(--snow);border:1px solid var(--cloud);border-radius:22px;
+  padding:18px 24px;font-size:22px;color:var(--iron);white-space:nowrap}
+#a1 .node b{display:block;font-size:15px;color:var(--fog);font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+#a1 .dot{width:9px;height:9px;border-radius:50%;background:var(--mist);flex:none}
+#a1 .totals{display:flex;gap:80px;margin-top:70px}
+#a1 .totals b{display:block;font-size:64px;font-weight:600;color:var(--obsidian);
+  letter-spacing:-.02em}
+#a1 .totals span{font-size:20px;color:var(--steel)}
+
+/* act 2 — the race */
+#a2 .lanes{margin-top:26px}
+.lane{display:grid;grid-template-columns:360px 1fr 190px 128px;gap:26px;
+  align-items:center;height:70px}
+.lane .nm{font-size:23px;text-align:right;color:var(--iron);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.lane.hero .nm{color:var(--obsidian);font-weight:600}
+.lane .track{height:26px;background:var(--snow);border:1px solid var(--cloud);
+  border-radius:9px;position:relative;overflow:hidden}
+.lane .track i{position:absolute;left:0;top:0;bottom:0;border-radius:8px}
+.lane .live{font-size:27px;text-align:right;color:var(--obsidian);font-weight:600}
+.lane .live em{font-style:normal;font-size:17px;color:var(--fog);font-weight:400;
+  margin-left:5px}
+.lane .tot{font-size:19px;text-align:right;color:var(--fog)}
+#a2 .clock{position:absolute;right:72px;top:64px;text-align:right}
+#a2 .clock b{display:block;font-size:56px;font-weight:600;color:var(--obsidian);
+  letter-spacing:-.02em}
+#a2 .clock span{font-size:18px;color:var(--fog)}
+
+/* act 3 — parameters */
+#a3 .grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:34px}
+#a3 .card h3{font-size:27px;font-weight:600;color:var(--obsidian)}
+#a3 .card h3 em{font-style:normal;font-size:18px;color:var(--fog);font-weight:400;
+  margin-left:12px}
+#a3 .rows{margin-top:22px;display:flex;flex-direction:column;gap:11px}
+#a3 .r{display:grid;grid-template-columns:186px 1fr 96px;gap:16px;align-items:center}
+#a3 .r span:first-child{font-size:17px;text-align:right;color:var(--iron)}
+#a3 .r .bar{height:19px;background:var(--paper);border-radius:6px;position:relative}
+#a3 .r .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+#a3 .r span:last-child{font-size:17px;text-align:right;color:var(--iron)}
+#a3 .r.hero span{color:var(--obsidian);font-weight:600}
+
+/* act 4 — verdict */
+#a4 .cards{display:flex;gap:24px;margin-top:44px}
+#a4 .card{flex:1}
+#a4 .card b{display:block;font-size:62px;font-weight:600;color:var(--obsidian);
+  letter-spacing:-.02em}
+#a4 .card b.em{color:var(--ember)}
+#a4 .card p{font-size:21px;color:var(--steel);margin-top:14px;line-height:1.45}
+#a4 .foot{position:absolute;left:72px;bottom:64px;font-size:24px;color:var(--fog)}
+#a4 .foot b{color:var(--obsidian);font-weight:500}
+</style>
+
+<canvas id="particles" width="1920" height="1080"></canvas>
+
+<div class="act" id="a1">
+  <div class="kicker">Polyglot Bench</div>
+  <h1>One checkout request,<br>written ten ways.</h1>
+  <div class="rule"></div>
+  <div class="chain" id="chain"></div>
+  <div class="totals" id="totals"></div>
+</div>
+
+<div class="act" id="a2">
+  <div class="kicker">The run · quote endpoint · 64 connections, flat out</div>
+  <h2 style="margin-top:14px">Every stack, sending as fast as it can answer</h2>
+  <div class="clock"><b class="num" id="clock">0.0s</b><span>of the measured window</span></div>
+  <div class="lanes" id="lanes"></div>
+</div>
+
+<div class="act" id="a3">
+  <div class="kicker">Everything that was measured</div>
+  <h2 style="margin-top:14px">The same ten stacks, four different bills</h2>
+  <div class="grid" id="panels"></div>
+</div>
+
+<div class="act" id="a4">
+  <div class="kicker">What the numbers support</div>
+  <h2 style="margin-top:14px">Three findings that survived correction</h2>
+  <div class="cards" id="verdict"></div>
+  <div class="foot">450 runs · 6.0M API calls · 44.8M SQL statements · zero errors<br>
+    <b>github.com/hallelx2/polyglot-bench</b></div>
+</div>
+
+<script>
+const D = window.__DATA__;
+const S = D.stacks;
+const HERO = "ts-bun-only";
+const SHORT = {"rust-hyper":"hyper","rust-axum":"Axum","rust-actix":"Actix Web",
+  "go-nethttp":"net/http","go-fiber":"Fiber","go-gin":"Gin","go-gin-gorm":"Gin + GORM",
+  "ts-bun-only":"Bun only","ts-bun-hono":"Hono + node-postgres",
+  "ts-node-fastify":"Fastify + node-postgres"};
+const LANGSHORT = {Rust:"Rust", Go:"Go", TypeScript:"TS"};
+const LANG = {Rust:"#27272a", Go:"#71717a", TypeScript:"#a1a1aa"};
+const col = s => s.id === HERO ? "#ff5a00" : LANG[s.lang];
+const fmt = (v,d=0) => v.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const ease = t => t<0 ? 0 : t>1 ? 1 : 1-Math.pow(1-t,3);
+
+/* ---- acts on the timeline (seconds) ---- */
+const ACTS = [
+  {id:"a1", from:0,    to:8},
+  {id:"a2", from:8,    to:28},
+  {id:"a3", from:28,   to:40},
+  {id:"a4", from:40,   to:48},
+];
+const DURATION = 48;
+const RUN_SECONDS = 10;          // the measured window each run actually had
+
+/* ---- build static DOM once ---- */
+const CHAIN = [["HTTP","POST /api/quote"],["SQL 1","customer + tier"],["SQL 2","products"],
+  ["SQL 3","discount rules"],["SQL 4","tax rates"],["SQL 5","coupon"],["SQL 6","inventory"],
+  ["CPU","pricing engine"],["HTTP","invoice out"]];
+chain.innerHTML = CHAIN.map(([k,v],i)=>
+  `<div class="node" data-i="${i}"><b>${k}</b>${v}</div>` +
+  (i<CHAIN.length-1?`<div class="dot"></div>`:"")).join("");
+totals.innerHTML = [
+  [fmt(D.totals.runs), "measured runs"],
+  [(D.totals.calls/1e6).toFixed(1)+"M", "API calls issued"],
+  [(D.totals.sql/1e6).toFixed(1)+"M", "SQL statements behind them"],
+  [fmt(D.totals.errors), "non-2xx responses"],
+].map(([b,s])=>`<div><b class="num">${b}</b><span>${s}</span></div>`).join("");
+
+lanes.innerHTML = S.map(s=>
+  `<div class="lane ${s.id===HERO?"hero":""}" data-id="${s.id}">
+     <span class="nm"><b style="color:var(--fog);font-weight:500">${LANGSHORT[s.lang]}</b>&nbsp; ${SHORT[s.id]}</span>
+     <span class="track"><i style="background:${col(s)}"></i></span>
+     <span class="live num">0<em>req/s</em></span>
+     <span class="tot num">0</span>
+   </div>`).join("");
+
+const PANELS = [
+  {key:"p99",  title:"Tail latency", unit:"p99, ms at saturation", dec:1,
+   val:s=>s.p99.quote, lower:true},
+  {key:"p99o", title:"Tail latency at 300 req/s", unit:"p99, ms under fixed load", dec:2,
+   val:s=>s.p99open, lower:true},
+  {key:"cpu",  title:"CPU per request", unit:"milliseconds burned", dec:3,
+   val:s=>s.cpu, lower:true},
+  {key:"rss",  title:"Memory held", unit:"peak resident, MB", dec:0,
+   val:s=>s.rss, lower:true},
+];
+panels.innerHTML = PANELS.map(p=>{
+  const rows = [...S].sort((a,b)=> p.val(a)-p.val(b));
+  const mx = Math.max(...rows.map(p.val));
+  return `<div class="card" data-k="${p.key}"><h3>${p.title}<em>${p.unit}</em></h3>
+    <div class="rows">${rows.map(s=>
+      `<div class="r ${s.id===HERO?"hero":""}">
+         <span>${SHORT[s.id]}</span>
+         <span class="bar"><i style="background:${col(s)};width:0%" data-w="${p.val(s)/mx*100}"></i></span>
+         <span class="num">${fmt(p.val(s),p.dec)}</span>
+       </div>`).join("")}</div></div>`;
+}).join("");
+
+const C = D.contrasts;
+const find = (a,b) => C.find(t=>t.a===a&&t.b===b);
+const rg = find("rust-axum","go-fiber"), bn = find("ts-bun-only","ts-node-fastify"),
+      gm = find("go-gin","go-gin-gorm");
+const spread300 = (() => {
+  const v = S.map(s=>s.p99open); return (Math.max(...v)-Math.min(...v)).toFixed(1);
+})();
+verdict.innerHTML = [
+  [`${spread300} ms`, false, `separates all ten stacks at a fixed 300 requests a second. At the load most services actually see, the runtime is not the variable.`],
+  [`${rg.ratio.toFixed(2)}×`, false, `between the best Rust and the best Go, p = ${rg.pHolm.toFixed(2)}. On a database-bound workload they are statistically indistinguishable.`],
+  [`${gm.ratio.toFixed(2)}×`, true, `lost to an ORM on the identical router. Changing the data layer cost more than changing the language.`],
+].map(([b,em,p])=>`<div class="card"><b class="num ${em?"em":""}">${b}</b><p>${p}</p></div>`).join("");
+
+/* ---- particles: deterministic, no accumulated state ---- */
+const cv = document.getElementById("particles"), ctx = cv.getContext("2d");
+const LANE_TOP = 187, LANE_H = 70, TRACK_X0 = 72+360+26, TRACK_W = 1920-72-360-26-26-190-26-128-72;
+const SPEED = 420;                       // px per second
+const PER_DOT = 260;                     // requests represented by one dot
+
+function drawParticles(t){
+  ctx.clearRect(0,0,1920,1080);
+  const a2 = ACTS[1];
+  if (t < a2.from-0.4 || t > a2.to) return;
+  const local = t - a2.from;
+  const fade = clamp(Math.min(local/0.6, (a2.to-t)/0.8), 0, 1);
+  S.forEach((s,li)=>{
+    const rate = s.rps.quote / PER_DOT;          // dots per second
+    const y = LANE_TOP + li*LANE_H + LANE_H/2;
+    const travel = TRACK_W / SPEED;
+    const first = Math.ceil((local - travel) * rate);
+    const last  = Math.floor(local * rate);
+    for (let i = Math.max(0,first); i <= last; i++){
+      const x = TRACK_X0 + (local - i/rate) * SPEED;
+      if (x < TRACK_X0-4 || x > TRACK_X0+TRACK_W) continue;
+      // White core with a coloured ring, so a dot reads whether it is over
+      // the filled part of the track or the empty part.
+      ctx.globalAlpha = fade;
+      ctx.beginPath(); ctx.arc(x, y, 4.2, 0, 6.2832);
+      ctx.fillStyle = "#ffffff"; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = col(s); ctx.stroke();
+    }
+  });
+  ctx.globalAlpha = 1;
+}
+
+/* ---- the renderer ---- */
+function renderAt(t){
+  for (const a of ACTS){
+    const el = document.getElementById(a.id);
+    const inA = t >= a.from-0.5 && t <= a.to;
+    const fin = clamp((t-a.from)/0.55, 0, 1);
+    const fout = clamp((a.to-t)/0.55, 0, 1);
+    el.style.opacity = inA ? (ease(fin)*ease(fout)).toFixed(3) : 0;
+    el.style.transform = inA ? `translateY(${(1-ease(fin))*22}px)` : "";
+  }
+
+  // act 1 — chain lights up one node at a time
+  const l1 = t - ACTS[0].from;
+  document.querySelectorAll("#chain .node").forEach((n,i)=>{
+    const on = l1 > 2.0 + i*0.42;
+    n.style.borderColor = on ? "#ff5a00" : "var(--cloud)";
+    n.style.color = on ? "var(--obsidian)" : "var(--ash)";
+  });
+
+  // act 2 — live counters follow the real per-second series
+  const l2 = t - ACTS[1].from;
+  const runT = clamp(l2/ (ACTS[1].to-ACTS[1].from-1.2), 0, 1) * RUN_SECONDS;
+  clock.textContent = runT.toFixed(1)+"s";
+  const mxRps = Math.max(...S.map(s=>s.rps.quote));
+  document.querySelectorAll(".lane").forEach(el=>{
+    const s = S.find(x=>x.id===el.dataset.id);
+    const idx = clamp(Math.floor(runT), 0, Math.max(0,s.series.length-1));
+    const live = s.series.length ? s.series[idx] : s.rps.quote;
+    el.querySelector(".live").innerHTML = fmt(live)+'<em>req/s</em>';
+    el.querySelector(".tot").textContent = fmt(Math.round(s.rps.quote*runT));
+    el.querySelector(".track i").style.width =
+      (s.rps.quote/mxRps * clamp(runT/RUN_SECONDS,0,1) * 100).toFixed(2)+"%";
+  });
+
+  // act 3 — bars grow panel by panel
+  const l3 = t - ACTS[2].from;
+  document.querySelectorAll("#panels .card").forEach((card,ci)=>{
+    const p = ease((l3 - 0.5 - ci*0.55)/1.5);
+    card.querySelectorAll(".bar i").forEach(i=>{
+      i.style.width = (parseFloat(i.dataset.w)*p).toFixed(2)+"%";
+    });
+  });
+
+  // act 4 — cards rise in sequence
+  const l4 = t - ACTS[3].from;
+  document.querySelectorAll("#verdict .card").forEach((c,ci)=>{
+    const p = ease((l4-0.4-ci*0.5)/0.9);
+    c.style.opacity = p.toFixed(3);
+    c.style.transform = `translateY(${(1-p)*26}px)`;
+  });
+
+  drawParticles(t);
+}
+window.renderAt = renderAt;
+window.DURATION = DURATION;
+renderAt(0);
+</script>

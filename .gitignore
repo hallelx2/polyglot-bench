@@ -20,3 +20,6 @@ paper/*.log
 paper/*.out
 paper/*.xdv
 docs/figures/_html/
+
+# Video intermediates (the mp4 and gif are committed; 1,440 PNGs are not)
+video/frames/
