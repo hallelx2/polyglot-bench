@@ -369,9 +369,13 @@ func pct(sorted []float64) Percentiles {
 }
 
 func buckets(all []sample, elapsed time.Duration) []Bucket {
-	n := int(elapsed.Seconds()) + 1
+	// Only whole seconds. A run rarely ends exactly on a second boundary, and
+	// an extra bucket holding the last few milliseconds renders as a cliff at
+	// the end of every timeseries -- it reads as the server collapsing when it
+	// is really a partial sample drawn as if it were a full one.
+	n := int(elapsed.Seconds())
 	if n < 1 {
-		return nil
+		n = 1
 	}
 	lats := make([][]float64, n)
 	errs := make([]int, n)
