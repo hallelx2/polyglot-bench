@@ -1,0 +1,16 @@
+{
+  "_comment": "Statements each strategy must issue for the fixed oracle request: customer 4242, warehouse 1, SKU-000101 x4 + SKU-000202 x1, coupon BENCH0007 (valid). Measured at the server with log_statement=all. A strategy that does not hit its row is not the strategy it claims to be.",
+  "_request": {"customerId": 4242, "warehouseId": 1,
+               "items": [{"sku": "SKU-000101", "qty": 4}, {"sku": "SKU-000202", "qty": 1}],
+               "couponCode": "BENCH0007"},
+  "strategies": {
+    "naive":      {"quote": 11, "checkout": 22,
+                   "note": "N+1: customer, tier, product per item, rules per line, tax per line, coupon, inventory per item"},
+    "batched":    {"quote": 6,  "checkout": 15, "note": "phase-1 baseline, = ANY($1)"},
+    "pipelined":  {"quote": 6,  "checkout": 15, "note": "same statements, one flush"},
+    "single":     {"quote": 1,  "checkout": 4,  "note": "one CTE read; BEGIN, locked read, write CTE, COMMIT"},
+    "cached":     {"quote": 4,  "checkout": 13, "note": "batched minus rules and taxes"},
+    "optimal":    {"quote": 1,  "checkout": 4,  "note": "single + cached"},
+    "unprepared": {"quote": 6,  "checkout": 15, "note": "batched over the simple protocol"}
+  }
+}

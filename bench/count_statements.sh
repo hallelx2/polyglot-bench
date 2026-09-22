@@ -10,6 +10,8 @@ cd "$(dirname "$0")/.."
 source bench/env.sh
 N=${N:-20}
 OUT=analysis/statements.json
+CHECK=0
+[ "${1:-}" = "--check" ] && CHECK=1
 BODY='{"customerId":4242,"warehouseId":1,"items":[{"sku":"SKU-000101","qty":4},{"sku":"SKU-000202","qty":1}],"couponCode":"BENCH0007"}'
 
 pg() { docker exec pgbench-db psql -U bench -d bench -qc "$1" >/dev/null; }
@@ -21,8 +23,9 @@ trap 'pg "ALTER SYSTEM SET log_statement=none"; pg "SELECT pg_reload_conf()"' EX
 
 echo "{" > "$OUT"
 first=1
-for id in $(jq -r '.[].id' bench/stacks.json); do
-  port=$(jq -r --arg i "$id" '.[]|select(.id==$i)|.port' bench/stacks.json)
+for id in $(jq -r 'to_entries[]|select(.key|startswith("_")|not)|.key' bench/variants.json); do
+  stack=$(jq -r --arg v "$id" '.[$v].stack' bench/variants.json)
+  port=$(jq -r --arg i "$stack" '.[]|select(.id==$i)|.port' bench/stacks.json)
   ./bench/svc.sh start "$id" >/dev/null 2>&1 || continue
   printf '  %-16s' "$id"
   row=""
@@ -48,3 +51,32 @@ for id in $(jq -r '.[].id' bench/stacks.json); do
 done
 printf '\n}\n' >> "$OUT"
 echo "wrote $OUT"
+
+# ---- oracle -------------------------------------------------------------
+# A variant only counts as implementing its strategy if it issues exactly the
+# statements that strategy is defined to issue. Output equality is not enough:
+# phase 1's GORM row returned identical bytes from a different query plan.
+if [ "$CHECK" = "1" ]; then
+  python3 - "$OUT" bench/expected_statements.json bench/variants.json <<'EOPY'
+import json, sys
+measured, expected, variants = (json.load(open(p)) for p in sys.argv[1:4])
+strategies = expected["strategies"]
+fail = []
+for name, spec in ((k, v) for k, v in variants.items() if not k.startswith("_")):
+    want = strategies.get(spec["strategy"])
+    if want is None:
+        fail.append(f"{name}: unknown strategy {spec['strategy']!r}"); continue
+    got = measured.get(name)
+    if got is None:
+        fail.append(f"{name}: never measured (variant did not start?)"); continue
+    for ep in ("quote", "checkout"):
+        if abs(got[ep] - want[ep]) > 1e-9:
+            fail.append(f"{name}: {ep} issued {got[ep]:g}, {spec['strategy']} must issue {want[ep]}")
+print()
+if fail:
+    print(f"STATEMENT ORACLE FAIL ({len(fail)}):")
+    for f in fail: print("   ", f)
+    sys.exit(1)
+print(f"STATEMENT ORACLE PASS — {sum(1 for k in variants if not k.startswith(chr(95)))} variants match their strategy")
+EOPY
+fi

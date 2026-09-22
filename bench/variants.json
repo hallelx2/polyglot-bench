@@ -1,0 +1,150 @@
+{
+ "_comment": "Variant = stack + env overrides. 'strategy' names the row in bench/expected_statements.json that this variant must satisfy.",
+ "go-nethttp@naive": {
+  "stack": "go-nethttp",
+  "strategy": "naive",
+  "env": {
+   "DATA_STRATEGY": "naive"
+  }
+ },
+ "go-nethttp@batched": {
+  "stack": "go-nethttp",
+  "strategy": "batched",
+  "env": {
+   "DATA_STRATEGY": "batched"
+  }
+ },
+ "go-nethttp@pipelined": {
+  "stack": "go-nethttp",
+  "strategy": "pipelined",
+  "env": {
+   "DATA_STRATEGY": "pipelined"
+  }
+ },
+ "go-nethttp@single": {
+  "stack": "go-nethttp",
+  "strategy": "single",
+  "env": {
+   "DATA_STRATEGY": "single"
+  }
+ },
+ "go-nethttp@cached": {
+  "stack": "go-nethttp",
+  "strategy": "cached",
+  "env": {
+   "DATA_STRATEGY": "cached"
+  }
+ },
+ "go-nethttp@optimal": {
+  "stack": "go-nethttp",
+  "strategy": "optimal",
+  "env": {
+   "DATA_STRATEGY": "optimal"
+  }
+ },
+ "go-nethttp@unprepared": {
+  "stack": "go-nethttp",
+  "strategy": "unprepared",
+  "env": {
+   "DATA_STRATEGY": "unprepared"
+  }
+ },
+ "rust-axum@naive": {
+  "stack": "rust-axum",
+  "strategy": "naive",
+  "env": {
+   "DATA_STRATEGY": "naive"
+  }
+ },
+ "rust-axum@batched": {
+  "stack": "rust-axum",
+  "strategy": "batched",
+  "env": {
+   "DATA_STRATEGY": "batched"
+  }
+ },
+ "rust-axum@pipelined": {
+  "stack": "rust-axum",
+  "strategy": "pipelined",
+  "env": {
+   "DATA_STRATEGY": "pipelined"
+  }
+ },
+ "rust-axum@single": {
+  "stack": "rust-axum",
+  "strategy": "single",
+  "env": {
+   "DATA_STRATEGY": "single"
+  }
+ },
+ "rust-axum@cached": {
+  "stack": "rust-axum",
+  "strategy": "cached",
+  "env": {
+   "DATA_STRATEGY": "cached"
+  }
+ },
+ "rust-axum@optimal": {
+  "stack": "rust-axum",
+  "strategy": "optimal",
+  "env": {
+   "DATA_STRATEGY": "optimal"
+  }
+ },
+ "rust-axum@unprepared": {
+  "stack": "rust-axum",
+  "strategy": "unprepared",
+  "env": {
+   "DATA_STRATEGY": "unprepared"
+  }
+ },
+ "ts-bun-only@naive": {
+  "stack": "ts-bun-only",
+  "strategy": "naive",
+  "env": {
+   "DATA_STRATEGY": "naive"
+  }
+ },
+ "ts-bun-only@batched": {
+  "stack": "ts-bun-only",
+  "strategy": "batched",
+  "env": {
+   "DATA_STRATEGY": "batched"
+  }
+ },
+ "ts-bun-only@pipelined": {
+  "stack": "ts-bun-only",
+  "strategy": "pipelined",
+  "env": {
+   "DATA_STRATEGY": "pipelined"
+  }
+ },
+ "ts-bun-only@single": {
+  "stack": "ts-bun-only",
+  "strategy": "single",
+  "env": {
+   "DATA_STRATEGY": "single"
+  }
+ },
+ "ts-bun-only@cached": {
+  "stack": "ts-bun-only",
+  "strategy": "cached",
+  "env": {
+   "DATA_STRATEGY": "cached"
+  }
+ },
+ "ts-bun-only@optimal": {
+  "stack": "ts-bun-only",
+  "strategy": "optimal",
+  "env": {
+   "DATA_STRATEGY": "optimal"
+  }
+ },
+ "ts-bun-only@unprepared": {
+  "stack": "ts-bun-only",
+  "strategy": "unprepared",
+  "env": {
+   "DATA_STRATEGY": "unprepared"
+  }
+ }
+}
