@@ -23,7 +23,7 @@ body{width:1920px;height:1080px;background:var(--paper);overflow:hidden;
 .legend i{width:16px;height:4px;border-radius:2px;display:block}
 .row{display:grid;gap:18px}
 .r1{grid-template-columns:2.1fr 1fr}
-.r2{grid-template-columns:1fr 1fr 1fr}
+.r2{grid-template-columns:1.06fr 1.06fr .94fr .94fr}
 .card{background:var(--snow);border:1px solid var(--cloud);border-radius:22px;
   padding:18px 20px 12px;display:flex;flex-direction:column;min-width:0}
 .card h3{font-size:17px;font-weight:600;color:var(--obsidian)}
@@ -47,6 +47,7 @@ body{width:1920px;height:1080px;background:var(--paper);overflow:hidden;
   <div class="card"><h3>Median latency<em>p50, ms</em></h3><canvas id="c_p50"></canvas></div>
   <div class="card"><h3>Tail latency<em>p99, ms</em></h3><canvas id="c_p99"></canvas></div>
   <div class="card"><h3>CPU per request<em>ms, median over the window</em></h3><canvas id="c_cpu"></canvas></div>
+  <div class="card"><h3>Memory held<em>peak resident, MB</em></h3><canvas id="c_rss"></canvas></div>
 </div>
 
 <script>
@@ -158,7 +159,7 @@ function lineChart(cv, key, t, {unit="", dec=0, scale=1}={}){
 /** horizontal bars that fill once, then hold — a per-run median, not a series */
 function barChart(cv, key, t, {dec=3}={}){
   const {ctx,w,h} = setup(cv);
-  const L=112, R=58, T=6, B=6;
+  const L=104, R=52, T=6, B=6;
   const rows=[...S].sort((a,b)=>a[key]-b[key]);
   const top = niceMax(Math.max(...rows.map(s=>s[key])));
   const gap = (h-T-B)/rows.length;
@@ -186,6 +187,7 @@ function renderAt(vt){
   lineChart(c_p50, "p50", t, {dec:1});
   lineChart(c_p99, "p99", t, {dec:1});
   barChart (c_cpu, "cpu", t, {dec:3});
+  barChart (c_rss, "rss", t, {dec:0});
 }
 window.renderAt = renderAt;
 window.DURATION = DURATION;
