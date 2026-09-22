@@ -255,10 +255,11 @@ python3 bench/verify.py                   # prove the ten are equivalent
 python3 bench/run.py --profile final --fresh
 bun run dashboard/serve.ts                # live dashboard on :7777
 
-python3 -m venv .venv && .venv/bin/pip install scipy numpy matplotlib pandas
-.venv/bin/python analysis/stats.py
-.venv/bin/python analysis/figures.py
-.venv/bin/python analysis/write_docs.py
+python3 -m venv .venv && .venv/bin/pip install scipy numpy
+.venv/bin/python analysis/stats.py       # Friedman, Nemenyi, planned contrasts
+.venv/bin/python analysis/figures.py     # needs chromium: HTML/SVG -> PNG
+.venv/bin/python analysis/write_docs.py  # README.md and RESULTS.md
+.venv/bin/python analysis/write_paper.py && cd paper && tectonic -X compile main.tex
 ```
 
 Profiles: `smoke` (10 runs), `quick`, `full`, `final` (450 runs,
