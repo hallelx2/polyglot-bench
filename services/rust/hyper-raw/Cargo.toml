@@ -1,0 +1,14 @@
+[package]
+name = "hyper-raw"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+hyper = { version = "1", features = ["http1", "server"] }
+hyper-util = { version = "0.1", features = ["tokio", "server"] }
+http-body-util = "0.1"
+tokio = { workspace = true }
+serde_json = { workspace = true }
+deadpool-postgres = { workspace = true }
+bytes = { workspace = true }

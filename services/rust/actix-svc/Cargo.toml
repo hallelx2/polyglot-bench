@@ -1,0 +1,10 @@
+[package]
+name = "actix-svc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+common = { path = "../common" }
+actix-web = "4"
+serde_json = { workspace = true }
+deadpool-postgres = { workspace = true }
