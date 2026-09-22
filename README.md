@@ -1,11 +1,29 @@
 # Polyglot Checkout Bench
 
-One order-pricing and checkout service, written **ten times** across TypeScript,
-Go and Rust, proved byte-for-byte identical, then measured under identical load.
+*Python is slow.* *Rewrite the backend in Rust and it will be fast.*
 
-The question it was built to answer: for an ordinary transactional API that
-spends most of its time talking to a database, what does the language actually
-cost you?
+Both of those are true. Neither tells you whether it matters on an ordinary
+Tuesday, on the service you actually maintain.
+
+The benchmarks people cite do not settle it either. Most of them load-test a
+single endpoint that returns a fixed string or serialises one small object,
+scaled across a cluster until the requests-per-second number looks impressive.
+Very little production code looks like that. What the rest of us ship opens a
+transaction, reads half a dozen tables, applies pricing rules that accumulated
+over three years of edge cases, writes to several more tables and commits. It
+spends most of its wall-clock time waiting on a database rather than executing
+its own instructions, and that is the regime the hello-world numbers say
+nothing about.
+
+So this benchmarks the thing engineers actually build: order pricing and
+checkout for an ecommerce API. Six reads, a discount engine with stacking rules
+and coupons, then an eleven-statement write transaction that locks stock and
+books the order.
+
+One specification. Ten implementations across TypeScript, Go and Rust. Every
+one proved byte-for-byte identical before a stopwatch started, then measured
+under identical load, with statistics that say which of the differences are
+real and which are noise.
 
 ![Throughput at saturation](docs/figures/throughput.png)
 
