@@ -1,0 +1,14 @@
+{
+  "name": "polyglot-bench-ts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "pg": "^8.13.1",
+    "hono": "^4.6.14",
+    "fastify": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.10",
+    "@types/node": "^22.10.2"
+  }
+}
