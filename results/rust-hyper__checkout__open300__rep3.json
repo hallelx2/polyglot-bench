@@ -1,0 +1,116 @@
+{
+  "stack": "rust-hyper",
+  "machineProbeMs": 59.672172,
+  "scenario": "checkout",
+  "mode": "open",
+  "rep": 3,
+  "conns": 64,
+  "targetRate": 300,
+  "durationSec": 9.99992573,
+  "warmupSec": 3,
+  "startedAt": "2026-09-21T21:53:37.256446086Z",
+  "requests": 3000,
+  "ok": 3000,
+  "errors": 0,
+  "statusCount": {
+    "200": 3000
+  },
+  "rps": 300.0022281165482,
+  "bytesPerSec": 325052.8141672508,
+  "latency": {
+    "minMs": 1.198544,
+    "p50Ms": 2.55639,
+    "p75Ms": 3.00935,
+    "p90Ms": 3.471497,
+    "p95Ms": 3.78085,
+    "p99Ms": 4.345841,
+    "p999Ms": 4.844056,
+    "maxMs": 5.467487,
+    "meanMs": 2.623890275666656,
+    "stddevMs": 0.6350041853810623
+  },
+  "timeseries": [
+    {
+      "t": 0,
+      "rps": 300,
+      "p50Ms": 2.762865,
+      "p99Ms": 4.993777,
+      "errors": 0
+    },
+    {
+      "t": 1,
+      "rps": 300,
+      "p50Ms": 2.537904,
+      "p99Ms": 4.440017,
+      "errors": 0
+    },
+    {
+      "t": 2,
+      "rps": 300,
+      "p50Ms": 2.551132,
+      "p99Ms": 4.015279,
+      "errors": 0
+    },
+    {
+      "t": 3,
+      "rps": 300,
+      "p50Ms": 2.459832,
+      "p99Ms": 4.066666,
+      "errors": 0
+    },
+    {
+      "t": 4,
+      "rps": 300,
+      "p50Ms": 2.551,
+      "p99Ms": 4.402429,
+      "errors": 0
+    },
+    {
+      "t": 5,
+      "rps": 299,
+      "p50Ms": 2.605735,
+      "p99Ms": 4.250232,
+      "errors": 0
+    },
+    {
+      "t": 6,
+      "rps": 300,
+      "p50Ms": 2.682946,
+      "p99Ms": 4.345841,
+      "errors": 0
+    },
+    {
+      "t": 7,
+      "rps": 301,
+      "p50Ms": 2.474561,
+      "p99Ms": 4.273615,
+      "errors": 0
+    },
+    {
+      "t": 8,
+      "rps": 300,
+      "p50Ms": 2.511808,
+      "p99Ms": 4.296365,
+      "errors": 0
+    },
+    {
+      "t": 9,
+      "rps": 300,
+      "p50Ms": 2.549654,
+      "p99Ms": 4.347635,
+      "errors": 0
+    }
+  ],
+  "resource": {
+    "cpuSecondsUser": 0.5,
+    "cpuSecondsSys": 0.52,
+    "cpuPercentOfOneCore": 10.20013339428449,
+    "peakRssMb": 7.6953125,
+    "avgRssMb": 7.6953125,
+    "threads": 4
+  },
+  "host": {
+    "cores": 2,
+    "go": "go1.25.0"
+  }
+}
