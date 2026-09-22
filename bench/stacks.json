@@ -1,0 +1,127 @@
+[
+ {
+  "id": "ts-bun-only",
+  "label": "Bun only (Bun.serve + Bun.sql)",
+  "lang": "TypeScript",
+  "runtime": "Bun 1.4",
+  "framework": "hand-rolled router",
+  "driver": "Bun.sql (built in, zero deps)",
+  "port": 9301,
+  "cmd": [
+   "bun",
+   "run",
+   "services/ts/bun-only/src/server.ts"
+  ]
+ },
+ {
+  "id": "ts-bun-hono",
+  "label": "Bun + Hono + node-postgres",
+  "lang": "TypeScript",
+  "runtime": "Bun 1.4",
+  "framework": "Hono",
+  "driver": "pg (npm)",
+  "port": 9302,
+  "cmd": [
+   "bun",
+   "run",
+   "services/ts/bun-hono/server.ts"
+  ]
+ },
+ {
+  "id": "ts-node-fastify",
+  "label": "Node + Fastify + node-postgres",
+  "lang": "TypeScript",
+  "runtime": "Node 26",
+  "framework": "Fastify",
+  "driver": "pg (npm)",
+  "port": 9303,
+  "cmd": [
+   "node",
+   "services/ts/node-fastify/server.ts"
+  ]
+ },
+ {
+  "id": "go-nethttp",
+  "label": "Go + net/http + pgx",
+  "lang": "Go",
+  "runtime": "Go 1.25",
+  "framework": "net/http (stdlib)",
+  "driver": "pgx/v5",
+  "port": 9304,
+  "cmd": [
+   "services/go/bin/nethttp"
+  ]
+ },
+ {
+  "id": "go-fiber",
+  "label": "Go + Fiber + pgx",
+  "lang": "Go",
+  "runtime": "Go 1.25",
+  "framework": "Fiber (fasthttp)",
+  "driver": "pgx/v5",
+  "port": 9305,
+  "cmd": [
+   "services/go/bin/fiber"
+  ]
+ },
+ {
+  "id": "go-gin",
+  "label": "Go + Gin + pgx",
+  "lang": "Go",
+  "runtime": "Go 1.25",
+  "framework": "Gin",
+  "driver": "pgx/v5",
+  "port": 9310,
+  "cmd": [
+   "services/go/bin/gin"
+  ]
+ },
+ {
+  "id": "go-gin-gorm",
+  "label": "Go + Gin + GORM",
+  "lang": "Go",
+  "runtime": "Go 1.25",
+  "framework": "Gin",
+  "driver": "GORM",
+  "port": 9306,
+  "cmd": [
+   "services/go/bin/gingorm"
+  ]
+ },
+ {
+  "id": "rust-hyper",
+  "label": "Rust + hyper (raw)",
+  "lang": "Rust",
+  "runtime": "Rust 1.98",
+  "framework": "hyper (none)",
+  "driver": "tokio-postgres",
+  "port": 9307,
+  "cmd": [
+   "services/rust/target/release/hyper-raw"
+  ]
+ },
+ {
+  "id": "rust-axum",
+  "label": "Rust + Axum",
+  "lang": "Rust",
+  "runtime": "Rust 1.98",
+  "framework": "Axum",
+  "driver": "tokio-postgres",
+  "port": 9308,
+  "cmd": [
+   "services/rust/target/release/axum-svc"
+  ]
+ },
+ {
+  "id": "rust-actix",
+  "label": "Rust + Actix Web",
+  "lang": "Rust",
+  "runtime": "Rust 1.98",
+  "framework": "Actix Web",
+  "driver": "tokio-postgres",
+  "port": 9309,
+  "cmd": [
+   "services/rust/target/release/actix-svc"
+  ]
+ }
+]
