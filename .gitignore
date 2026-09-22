@@ -1,0 +1,21 @@
+# Regenerable from db/seed.py — 59 MB of TSV, not worth versioning
+db/data/
+
+# Build output
+services/go/bin/
+services/rust/target/
+services/ts/node_modules/
+node_modules/
+.venv/
+
+# Runtime scratch
+.run/
+
+# Generated from bench/corpus.py
+bench/corpus.json
+
+# LaTeX intermediates (main.pdf is committed)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.xdv

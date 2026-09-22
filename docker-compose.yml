@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: pgbench-db
+    environment:
+      POSTGRES_USER: bench
+      POSTGRES_PASSWORD: bench
+      POSTGRES_DB: bench
+    ports: ["55432:5432"]
+    # Pinned so the database never competes with the service under test
+    # or with the load generator for the same cores.
+    cpuset: "0-2"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./db:/seed:ro
+    command:
+      - postgres
+      - "-c"
+      - "max_connections=400"
+      - "-c"
+      - "shared_buffers=4GB"
+      - "-c"
+      - "effective_cache_size=8GB"
+      - "-c"
+      - "work_mem=32MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "synchronous_commit=off"
+      - "-c"
+      - "wal_writer_delay=200ms"
+      - "-c"
+      - "max_wal_size=8GB"
+      - "-c"
+      - "checkpoint_timeout=30min"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "log_min_duration_statement=-1"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench -d bench"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+volumes:
+  pgdata:
