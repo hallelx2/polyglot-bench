@@ -1,0 +1,12 @@
+{
+  "name": "bench-bun-only",
+  "private": true,
+  "type": "module",
+  "module": "src/server.ts",
+  "scripts": {
+    "start": "bun run src/server.ts",
+    "dev": "bun --hot src/server.ts",
+    "build": "bun build --compile --outfile=bench-bun src/server.ts"
+  },
+  "dependencies": {}
+}
