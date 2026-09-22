@@ -1,4 +1,32 @@
+<div align="center">
+
 # Polyglot Checkout Bench
+
+**One database-bound business transaction, written ten ways, measured properly.**
+
+[![license](https://img.shields.io/badge/license-MIT-18181b?style=flat-square)](LICENSE)
+[![stacks](https://img.shields.io/badge/stacks-10-ff5a00?style=flat-square)](#the-ten-stacks)
+[![runs](https://img.shields.io/badge/runs-450-18181b?style=flat-square)](RESULTS.md)
+[![calls](https://img.shields.io/badge/API%20calls-6.0M-18181b?style=flat-square)](RESULTS.md)
+[![conformance](https://img.shields.io/badge/conformance-10%2F10%20identical-1baf7a?style=flat-square)](#conformance-comes-first)
+[![errors](https://img.shields.io/badge/non--2xx-0-1baf7a?style=flat-square)](RESULTS.md)
+[![paper](https://img.shields.io/badge/paper-PDF-18181b?style=flat-square)](paper/main.pdf)
+[![last commit](https://img.shields.io/github/last-commit/hallelx2/polyglot-bench?style=flat-square&color=71717a)](https://github.com/hallelx2/polyglot-bench/commits)
+[![stars](https://img.shields.io/github/stars/hallelx2/polyglot-bench?style=flat-square&color=71717a)](https://github.com/hallelx2/polyglot-bench/stargazers)
+
+![TypeScript](https://img.shields.io/badge/TypeScript-Bun%20%C2%B7%20Node-2a78d6?style=flat-square&logo=typescript&logoColor=white)
+![Go](https://img.shields.io/badge/Go-1.25-0e9bb5?style=flat-square&logo=go&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.98-b45309?style=flat-square&logo=rust&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4a3aa7?style=flat-square&logo=postgresql&logoColor=white)
+
+![Live dashboard replay of a measured run](docs/dashboard.gif)
+
+<sub>A real measured window replayed at 3× slow motion — every line is that
+stack's actual per-second series.</sub>
+
+</div>
+
+---
 
 *Python is slow.* *Rewrite the backend in Rust and it will be fast.*
 
@@ -357,6 +385,36 @@ results/              one JSON file per run
 docs/figures/         generated figures
 paper/                LaTeX technical report
 ```
+
+## Citing this
+
+If you use the dataset or the harness, there is a `CITATION.cff` in the repo
+root, and GitHub's "Cite this repository" button reads it.
+
+```bibtex
+@misc{oludele2026polyglot,
+  author = {Oludele, Halleluyah},
+  title  = {Polyglot Checkout Bench: a conformance-verified benchmark of ten
+            TypeScript, Go and Rust implementations of one database-bound
+            business transaction},
+  year   = {2026},
+  url    = {https://github.com/hallelx2/polyglot-bench}
+}
+```
+
+## Contributing
+
+Adding a stack is welcome, with two conditions that are not negotiable, because
+they are what makes the comparison mean anything:
+
+1. It implements [`spec/SPEC.md`](spec/SPEC.md) exactly and passes
+   `python3 bench/verify.py` — byte-identical output against the reference.
+2. Its statement counts are recorded. Output equality is not enough on its own;
+   `bench/count_statements.sh` exists because an ORM passed conformance while
+   issuing a query the spec never asked for.
+
+Register it in `bench/stacks.json`, then re-run the pipeline so every number in
+the documents comes from the result files rather than from a diff.
 
 ## Licence
 

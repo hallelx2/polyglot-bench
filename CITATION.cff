@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "Polyglot Checkout Bench"
+message: "If you use this dataset or harness, please cite it."
+type: dataset
+authors:
+  - family-names: Oludele
+    given-names: Halleluyah
+    email: halleluyaholudele@gmail.com
+repository-code: "https://github.com/hallelx2/polyglot-bench"
+abstract: >-
+  Ten implementations of one database-bound business transaction — order pricing
+  and checkout — across TypeScript, Go and Rust, proved byte-for-byte identical
+  before measurement, then benchmarked over 450 runs with Friedman/Nemenyi
+  analysis and pre-specified contrasts. Includes the raw per-run result files.
+keywords:
+  - benchmark
+  - performance
+  - postgresql
+  - typescript
+  - go
+  - rust
+  - reproducible-research
+license: MIT
+date-released: "2026-09-22"
